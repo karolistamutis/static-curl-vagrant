@@ -1,0 +1,54 @@
+---
+# This builds a static curl binary
+
+- name: Download curl
+  git:
+    repo: '{{ curl_git }}'
+    dest: '{{ curl_dir }}'
+    version: '{{ curl_ver }}'
+    update: no
+
+- name: Configure static curl binary
+  shell: |
+    ./buildconf
+
+    CC="musl-gcc" \
+    CFLAGS="-static" \
+    LIBS="-lc -lpthread -ldl" \
+    LDFLAGS="--static -L{{ zlib_dir }} -L{{ openssl_dir }}" \
+    PKG_CONFIG="pkg-config --static" \
+    CPPFLAGS="-I{{ zlib_dir }} -I{{ openssl_dir }} -I{{ openssl_dir }}/include/" \
+    ./configure --with-zlib --with-ssl="{{ openssl_dir }}/_installdir/" \
+              --disable-manual \
+              --with-ca-bundle="/etc/ssl/certs/ca-certificates.crt" \
+              --disable-ldap \
+              --disable-ldaps \
+              --disable-rtsp \
+              --enable-proxy \
+              --enable-optimize \
+              --disable-dependency-tracking \
+              --enable-ipv6 \
+              --without-libidn \
+              --without-gnutls \
+              --without-librtmp \
+              --enable-static \
+              --disable-shared
+  args:
+    chdir: '{{ curl_dir }}'
+    creates: '{{ curl_dir }}/Makefile.in'
+
+- name: Build static curl binary
+  shell: make
+  environment:
+    CC: musl-gcc
+  args:
+    chdir: '{{ curl_dir }}'
+    creates: '{{ curl_dir }}/src/curl'
+
+- name: Copy 32bit curl binary to output dir on master
+  shell: cp '{{ curl_dir }}/src/curl' /vagrant/build/curl32
+  when: arch == "32"
+
+- name: Copy 64bit curl binary to output dir on master
+  shell: cp '{{ curl_dir }}/src/curl' /vagrant/build/curl64
+  when: arch == "64"

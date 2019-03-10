@@ -1,0 +1,29 @@
+---
+- hosts: all
+  vars:
+    build_dir: '/build'
+
+    openssl_git: 'https://github.com/openssl/openssl.git'
+    openssl_dir: '{{ build_dir }}/openssl'
+    openssl_ver: 'OpenSSL_1_1_1-stable'
+
+    zlib_git: 'https://github.com/madler/zlib.git'
+    zlib_dir: '{{ build_dir }}/zlib'
+    zlib_ver: 'v1.2.11'
+
+    curl_git: 'https://github.com/curl/curl.git'
+    curl_dir: '{{ build_dir }}/curl'
+    curl_ver: 'curl-7_64_0'
+  become: true
+  tasks:
+    - import_role:
+        name: buildtools
+
+    - import_role:
+        name: openssl
+
+    - import_role:
+        name: zlib
+
+    - import_role:
+        name: curl

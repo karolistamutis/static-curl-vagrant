@@ -1,0 +1,11 @@
+---
+# This role installs build tools and prepares the environment
+
+- name: Ensure build tools are installed
+  pacman:
+    name: ['kernel-headers-musl', 'musl', 'git', 'autoconf', 'automake']
+
+- name: Create build directory
+  file:
+    path: '{{ build_dir }}'
+    state: directory

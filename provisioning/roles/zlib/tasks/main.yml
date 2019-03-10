@@ -1,0 +1,37 @@
+---
+# This role installs zlib
+
+- name: Download zlib
+  git:
+    repo: '{{ zlib_git }}'
+    dest: '{{ zlib_dir }}'
+    version: '{{ zlib_ver }}'
+    update: no
+
+- name: Configure zlib for 32bit
+  shell: ./configure --prefix='{{ zlib_dir }}/_installdir' --static
+  environment:
+    CC: 'musl-gcc'
+    # fails compilation on i686 with __stack_chk_fail_local undefined, fix below
+    CFLAGS: '-fno-stack-protector'
+  args:
+    chdir: '{{ zlib_dir }}'
+    creates: '{{ zlib_dir }}/zlib.pc'
+  when: arch == "32"
+
+- name: Configure zlib for 64bit
+  shell: ./configure --prefix='{{ zlib_dir }}/_installdir' --static
+  environment:
+    CC: 'musl-gcc'
+  args:
+    chdir: '{{ zlib_dir }}'
+    creates: '{{ zlib_dir }}/zlib.pc'
+  when: arch == "64"
+
+- name: Build zlib
+  shell: make && make install
+  environment:
+    CC: 'musl-gcc'
+  args:
+    chdir: '{{ zlib_dir }}'
+    creates: '{{ zlib_dir }}/_installdir/lib/zlib.a'

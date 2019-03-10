@@ -1,0 +1,41 @@
+---
+# This role installs OpenSSL
+
+- name: Download OpenSSL
+  git:
+    repo: '{{ openssl_git }}'
+    dest: '{{ openssl_dir }}'
+    version: '{{ openssl_ver }}'
+    update: no
+
+- name: Configure OpenSSL for 32bit
+  shell: ./Configure --prefix="{{ openssl_dir }}/_installdir" no-dso -m32 linux-generic32 -fPIC -static
+  environment:
+    CC: 'musl-gcc'
+    OPENSSL_STATIC: 1
+    OPENSSL_DIR: '{{ openssl_dir }}'
+  args:
+    chdir: '{{ openssl_dir }}'
+    creates: '{{ openssl_dir }}/Makefile'
+  when: arch == "32"
+
+- name: Configure OpenSSL for 64bit
+  shell: ./Configure --prefix='{{ openssl_dir }}/_installdir' no-dso linux-x86_64 -fPIC -static
+  environment:
+    CC: 'musl-gcc'
+    OPENSSL_STATIC: 1
+    OPENSSL_DIR: '{{ openssl_dir }}'
+  args:
+    chdir: '{{ openssl_dir }}'
+    creates: '{{ openssl_dir }}/Makefile'
+  when: arch == "64"
+
+- name: Build OpenSSL
+  shell: make depend && make && make install
+  environment:
+    CC: 'musl-gcc'
+    OPENSSL_STATIC: 1
+    OPENSSL_DIR: '{{ openssl_dir }}'
+  args:
+    chdir: '{{ openssl_dir }}'
+    creates: '{{ openssl_dir }}/_installdir/bin/openssl'
