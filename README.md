@@ -3,6 +3,8 @@ static-curl-vagrant
 
 I recently had a need to compile 32bit and 64bit static curl binaries with TLS support and the process was error-prone and "hairy" to say the least so I've decided to automate the build as I'm sure someone else will benefit from this.
 
+![curl binary screenshot](https://s3.eu-central-1.amazonaws.com/ktpublic/static-curl-vagrant/static-curl.png)
+
 The resulting binaries are 3.7M in size and have no dependencies making them perfect for use in Docker or other environment with a relatively recent Linux kernel.
 
 This is a [Vagrant](https://www.vagrantup.com/) and [Ansible](https://www.ansible.com/) configuration that
@@ -63,7 +65,7 @@ Arch provides `musl` in the form of kernel-headers-musl in addition to full musl
 
 ## I don't trust the provided ArchLinux images
 
-Great, neither did I so I made my own with (Packer)[https://www.packer.io/] and uploaded to Vagrant Cloud.
+Great, neither did I so I made my own with [Packer](https://www.packer.io/) and uploaded to Vagrant Cloud.
 
 I do provide the [Packer template](https://github.com/karolistamutis/packer-archlinux) in a separate repo so you can inspect and build your own. It's just a fresh base Arch tailored for Vagrant and python2 installed for Ansible provisioning later.
 
